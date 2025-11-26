@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestFlow - 界面预览</title>
+    <link rel="stylesheet" href="styles/panel.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .preview-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: 80vh;
+        }
+        .preview-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="preview-title">RestFlow - 界面预览</h1>
+    
+    <div class="preview-container">
+        <div class="container">
+            <!-- 顶部导航栏 -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="logo">
+                        <i class="fas fa-bolt"></i>
+                        <span class="logo-text">RestFlow</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="btn-icon" title="新建请求">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="btn-icon" title="导入cURL">
+                        <i class="fas fa-terminal"></i>
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn-icon dropdown-toggle" title="更多操作">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item">
+                                <i class="fas fa-download"></i> 导出数据
+                            </button>
+                            <button class="dropdown-item">
+                                <i class="fas fa-upload"></i> 导入数据
+                            </button>
+                            <button class="dropdown-item text-danger">
+                                <i class="fas fa-trash"></i> 清空请求
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 搜索和过滤栏 -->
+            <div class="filter-bar">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" placeholder="搜索接口..." class="search-input">
+                </div>
+                <div class="filters">
+                    <select class="filter-select">
+                        <option value="">所有方法</option>
+                        <option value="GET">GET - 获取数据</option>
+                        <option value="POST">POST - 创建数据</option>
+                    </select>
+                    <select class="filter-select">
+                        <option value="">所有状态</option>
+                        <option value="2xx">2xx - 成功响应</option>
+                        <option value="4xx">4xx - 客户端错误</option>
+                    </select>
+                    <select class="filter-select">
+                        <option value="">所有类型</option>
+                        <option value="captured">🔍 自动捕获</option>
+                        <option value="replayed">🔄 重放请求</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 主要内容区域 -->
+            <div class="main-content">
+                <!-- 请求列表 -->
+                <div class="requests-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-list"></i>
+                            <span>请求列表 (3)</span>
+                        </div>
+                        <div class="panel-actions">
+                            <button class="btn-icon" title="刷新列表">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="requests-list">
+                        <!-- 示例请求项 -->
+                        <div class="request-item selected">
+                            <div class="request-header">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span class="request-method method-GET">GET</span>
+                                </div>
+                                <span class="request-status status-success">200</span>
+                            </div>
+                            <div class="request-url">
+                                <span class="request-path">/api/users</span>
+                                <span class="request-domain">example.com</span>
+                            </div>
+                            <div class="request-time">
+                                <span>14:32:15</span>
+                                <span class="request-duration">245ms</span>
+                            </div>
+                        </div>
+                        
+                        <div class="request-item replayed-request">
+                            <div class="request-header">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span class="request-method method-POST">POST</span>
+                                    <i class="fas fa-redo replayed-badge" title="重放请求"></i>
+                                </div>
+                                <span class="request-status status-success">201</span>
+                            </div>
+                            <div class="request-url">
+                                <span class="request-path">/api/users</span>
+                                <span class="request-domain">example.com</span>
+                            </div>
+                            <div class="request-time">
+                                <span>14:35:22</span>
+                                <span class="request-duration">189ms</span>
+                            </div>
+                        </div>
+                        
+                        <div class="request-item">
+                            <div class="request-header">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span class="request-method method-DELETE">DELETE</span>
+                                </div>
+                                <span class="request-status status-error">404</span>
+                            </div>
+                            <div class="request-url">
+                                <span class="request-path">/api/users/123</span>
+                                <span class="request-domain">example.com</span>
+                            </div>
+                            <div class="request-time">
+                                <span>14:38:01</span>
+                                <span class="request-duration">156ms</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 请求详情 -->
+                <div class="details-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-code"></i>
+                            <span>请求详情</span>
+                        </div>
+                        <div class="detail-actions">
+                            <button class="btn-icon" title="复制请求">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn-icon" title="重新发送">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="btn-icon" title="编辑请求">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="details-content">
+                        <div class="detail-section">
+                            <h4><i class="fas fa-info-circle"></i> 基本信息</h4>
+                            <div class="detail-info">
+                                <div class="detail-label">方法:</div>
+                                <div class="detail-value">GET</div>
+                                <div class="detail-label">URL:</div>
+                                <div class="detail-value">https://example.com/api/users</div>
+                                <div class="detail-label">状态:</div>
+                                <div class="detail-value">200 OK</div>
+                                <div class="detail-label">时间:</div>
+                                <div class="detail-value">2024-11-23 14:32:15</div>
+                                <div class="detail-label">耗时:</div>
+                                <div class="detail-value">245ms</div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4><i class="fas fa-tags"></i> 请求头</h4>
+                            <div class="headers-list">
+                                <div class="header-item">
+                                    <div class="header-name">Content-Type:</div>
+                                    <div class="header-value">application/json</div>
+                                </div>
+                                <div class="header-item">
+                                    <div class="header-name">Authorization:</div>
+                                    <div class="header-value">Bearer eyJhbGciOiJIUzI1NiIs...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4><i class="fas fa-code"></i> 响应体</h4>
+                            <div class="code-block">{
+  "users": [
+    {
+      "id": 1,
+      "name": "张三",
+      "email": "zhangsan@example.com"
+    },
+    {
+      "id": 2,
+      "name": "李四", 
+      "email": "lisi@example.com"
+    }
+  ],
+  "total": 2
+}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 简单的交互演示
+        document.querySelector('.dropdown-toggle').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdown = e.target.closest('.dropdown');
+            dropdown.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+        });
+        
+        // 请求项点击效果
+        document.querySelectorAll('.request-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.request-item').forEach(i => i.classList.remove('selected'));
+                item.classList.add('selected');
+            });
+        });
+        
+        // 模拟通知系统
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type} show`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // 按钮点击演示
+        document.querySelectorAll('.btn-icon').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const title = btn.getAttribute('title') || '操作';
+                showNotification(`${title} 功能已触发`, 'success');
+            });
+        });
+        
+        // 模拟tab切换
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // 移除所有active状态
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                // 激活当前tab
+                btn.classList.add('active');
+                showNotification(`切换到 ${btn.textContent.trim()} 标签页`, 'info');
+            });
+        });
+    </script>
+</body>
+</html>

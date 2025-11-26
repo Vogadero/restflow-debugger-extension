@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestFlow</title>
+    <link rel="stylesheet" href="styles/panel.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <i class="fas fa-bolt"></i>
+                    <span class="logo-text">RestFlow</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button id="newRequestBtn" class="btn-icon" title="新建请求">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button id="importCurlBtn" class="btn-icon" title="导入cURL">
+                    <i class="fas fa-terminal"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="btn-icon dropdown-toggle" title="更多操作">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <button id="exportBtn" class="dropdown-item">
+                            <i class="fas fa-download"></i> 导出数据
+                        </button>
+                        <button id="importBtn" class="dropdown-item">
+                            <i class="fas fa-upload"></i> 导入数据
+                        </button>
+                    </div>
+                </div>
+                <input type="file" id="importFile" accept=".json" style="display: none;">
+            </div>
+        </div>
+
+        <!-- 搜索和过滤栏 -->
+        <div class="filter-bar">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="搜索接口..." class="search-input">
+                <button class="search-clear-btn" id="searchClearBtn" style="display: none;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="filters">
+                <select id="methodFilter" class="filter-select">
+                    <option value="">所有方法</option>
+                    <option value="GET">🟢 GET</option>
+                    <option value="POST">🟡 POST</option>
+                    <option value="PUT">🔵 PUT</option>
+                    <option value="DELETE">🔴 DELETE</option>
+                    <option value="PATCH">🟣 PATCH</option>
+                    <option value="HEAD">⚫ HEAD</option>
+                    <option value="OPTIONS">🟠 OPTIONS</option>
+                </select>
+                <select id="statusFilter" class="filter-select">
+                    <option value="">所有状态</option>
+                    <option value="1xx">ℹ️ 1xx 信息响应</option>
+                    <option value="2xx">✅ 2xx 成功响应</option>
+                    <option value="3xx">↪️ 3xx 重定向</option>
+                    <option value="4xx">⚠️ 4xx 客户端错误</option>
+                    <option value="5xx">❌ 5xx 服务器错误</option>
+                    <option value="pending">⏳ 待响应</option>
+                </select>
+                <select id="typeFilter" class="filter-select">
+                    <option value="">所有类型</option>
+                    <option value="captured">🔍 自动捕获</option>
+                    <option value="replayed">🔄 重放请求</option>
+                    <option value="custom">✏️ 自定义请求</option>
+                    <option value="imported">📋 导入请求</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+            <!-- 请求列表 -->
+            <div class="requests-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-list"></i>
+                        <span>请求列表 (<span id="requestCount">0</span>)</span>
+                    </div>
+                    <div class="panel-actions">
+                        <button id="clearListBtn" class="btn-icon" title="清空请求列表">
+                            <i class="fas fa-broom"></i>
+                        </button>
+                        <button id="refreshBtn" class="btn-icon" title="重新加载页面">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="requests-list" id="requestsList">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-satellite-dish"></i>
+                        </div>
+                        <p>暂无捕获的请求</p>
+                        <p class="empty-hint">浏览网页时，API请求会自动显示在这里</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 请求详情/编辑器 -->
+            <div class="details-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="detailsTitle">请求详情</span>
+                    </div>
+                    <div class="detail-actions">
+                        <button id="duplicateBtn" class="btn-icon" title="复制请求" disabled>
+                            <i class="fas fa-clone"></i>
+                        </button>
+                        <button id="replayBtn" class="btn-icon" title="重新发送" disabled>
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button id="editBtn" class="btn-icon" title="编辑请求" disabled>
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="details-content" id="detailsContent">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-mouse-pointer"></i>
+                        </div>
+                        <p>选择一个请求查看详情</p>
+                        <p class="empty-hint">或者点击"新建"创建自定义请求</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 编辑/新建请求模态框 -->
+        <div id="editModal" class="modal">
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <i class="fas fa-edit"></i>
+                        <span id="modalTitle">编辑请求</span>
+                    </div>
+                    <button class="modal-close" id="closeModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- 请求基本信息 -->
+                    <div class="request-line">
+                        <select id="editMethod" class="method-select">
+                            <option value="GET">🟢 GET</option>
+                            <option value="POST">🟡 POST</option>
+                            <option value="PUT">🔵 PUT</option>
+                            <option value="DELETE">🔴 DELETE</option>
+                            <option value="PATCH">🟣 PATCH</option>
+                            <option value="HEAD">⚫ HEAD</option>
+                            <option value="OPTIONS">🟠 OPTIONS</option>
+                        </select>
+                        <input type="text" id="editUrl" class="url-input" placeholder="输入请求URL...">
+                        <button id="sendRequest" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> 发送
+                        </button>
+                    </div>
+
+                    <!-- 标签页导航 -->
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="params">
+                            <i class="fas fa-list-ul"></i> 参数
+                        </button>
+                        <button class="tab-btn" data-tab="headers">
+                            <i class="fas fa-tags"></i> 请求头
+                        </button>
+                        <button class="tab-btn" data-tab="body">
+                            <i class="fas fa-file-alt"></i> 请求体
+                        </button>
+                        <button class="tab-btn" data-tab="auth">
+                            <i class="fas fa-key"></i> 认证
+                        </button>
+                    </div>
+
+                    <!-- 参数标签页 -->
+                    <div class="tab-content" id="paramsTab">
+                        <div class="params-container">
+                            <div class="params-header">
+                                <span>Query Parameters</span>
+                                <button class="btn-small" id="addParamBtn">
+                                    <i class="fas fa-plus"></i> 添加
+                                </button>
+                            </div>
+                            <div class="params-list" id="paramsList">
+                                <!-- 动态生成参数行 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 请求头标签页 -->
+                    <div class="tab-content" id="headersTab" style="display: none;">
+                        <div class="input-mode-toggle">
+                            <button class="toggle-btn active" data-mode="form">
+                                <i class="fas fa-list"></i> 表单
+                            </button>
+                            <button class="toggle-btn" data-mode="raw">
+                                <i class="fas fa-code"></i> Raw
+                            </button>
+                        </div>
+                        <div class="headers-form-mode">
+                            <div class="headers-header">
+                                <span>Headers</span>
+                                <div class="header-actions">
+                                    <button class="btn-icon-small" id="copyHeadersBtn" title="复制请求头">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <button class="btn-small" id="addHeaderBtn">
+                                        <i class="fas fa-plus"></i> 添加
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="headers-list" id="headersList">
+                                <!-- 动态生成请求头行 -->
+                            </div>
+                        </div>
+                        <div class="headers-raw-mode" style="display: none;">
+                            <textarea id="editHeadersRaw" class="code-editor headers-raw-input" rows="8" placeholder='{"Content-Type": "application/json"}'></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 请求体标签页 -->
+                    <div class="tab-content" id="bodyTab" style="display: none;">
+                        <div class="body-type-selector">
+                            <label>
+                                <i class="fas fa-file-alt"></i>
+                                请求体类型
+                            </label>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <select id="bodyType" class="form-control">
+                                    <option value="none">🚫 无请求体</option>
+                                    <option value="json">📄 JSON</option>
+                                    <option value="form">📝 表单数据</option>
+                                    <option value="raw">📋 原始数据</option>
+                                    <option value="binary">💾 二进制</option>
+                                </select>
+                                <span class="body-type-indicator" id="bodyTypeIndicator">
+                                    <i class="fas fa-ban"></i>
+                                    NONE
+                                </span>
+                            </div>
+                        </div>
+                        <div class="body-content">
+                            <div class="body-json" id="bodyJson">
+                                <div class="json-toolbar">
+                                    <div class="toolbar-left">
+                                        <button class="btn-small" id="formatJsonBtn">
+                                            <i class="fas fa-magic"></i> 格式化
+                                        </button>
+                                        <button class="btn-small" id="minifyJsonBtn">
+                                            <i class="fas fa-compress"></i> 压缩
+                                        </button>
+                                    </div>
+                                    <button class="btn-icon-small" id="copyBodyBtn" title="复制请求体">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                <textarea id="editBodyJson" class="code-editor" placeholder='{"key": "value"}'></textarea>
+                            </div>
+                            <div class="body-form" id="bodyForm" style="display: none;">
+                                <div class="form-header">
+                                    <span>Form Data</span>
+                                    <button class="btn-small" id="addFormFieldBtn">
+                                        <i class="fas fa-plus"></i> 添加
+                                    </button>
+                                </div>
+                                <div class="form-fields" id="formFieldsList">
+                                    <!-- 动态生成表单字段 -->
+                                </div>
+                            </div>
+                            <div class="body-raw" id="bodyRaw" style="display: none;">
+                                <textarea id="editBodyRaw" class="code-editor" placeholder="输入原始数据..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 认证标签页 -->
+                    <div class="tab-content" id="authTab" style="display: none;">
+                        <div class="auth-type-selector">
+                            <select id="authType" class="form-control">
+                                <option value="none">🛡️ 无认证</option>
+                                <option value="bearer">🔑 Bearer Token</option>
+                                <option value="basic">👤 Basic Auth</option>
+                                <option value="api-key">🏷️ API Key</option>
+                                <option value="oauth2">🔐 OAuth 2.0</option>
+                                <option value="digest">🔒 Digest Auth</option>
+                                <option value="hawk">🦅 Hawk Auth</option>
+                            </select>
+                        </div>
+                        <div class="auth-content" id="authContent">
+                            <!-- 根据认证类型动态显示 -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelEdit" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> 取消
+                    </button>
+                    <button id="saveRequest" class="btn btn-success">
+                        <i class="fas fa-save"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- cURL导入模态框 -->
+        <div id="curlModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <i class="fas fa-terminal"></i>
+                        <span>导入 cURL</span>
+                    </div>
+                    <button class="modal-close" id="closeCurlModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>粘贴 cURL 命令</label>
+                        <textarea id="curlInput" class="code-editor curl-input" rows="15" placeholder="curl -X POST https://api.example.com/data -H 'Content-Type: application/json' -d '{\"key\": \"value\"}'"></textarea>
+                    </div>
+                    <div class="curl-help">
+                        <i class="fas fa-info-circle"></i>
+                        <span>支持从浏览器开发者工具、Postman等工具复制的cURL命令</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelCurl" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> 取消
+                    </button>
+                    <button id="importCurl" class="btn btn-primary">
+                        <i class="fas fa-download"></i> 导入
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 代码生成器模态框 -->
+    <div id="codeGeneratorModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-code"></i>
+                    <span>代码生成器</span>
+                </div>
+                <button class="modal-close" id="closeCodeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="code-generator-toolbar">
+                    <div class="language-selector">
+                        <label>选择语言:</label>
+                        <select id="codeLanguage" class="form-control">
+                            <option value="javascript">JavaScript (Fetch)</option>
+                            <option value="curl">cURL</option>
+                            <option value="python">Python (Requests)</option>
+                            <option value="java">Java (OkHttp)</option>
+                            <option value="csharp">C# (HttpClient)</option>
+                            <option value="php">PHP (cURL)</option>
+                            <option value="go">Go (net/http)</option>
+                            <option value="ruby">Ruby (Net::HTTP)</option>
+                        </select>
+                    </div>
+                    <div class="code-actions">
+                        <button id="formatCode" class="btn-icon-small" title="格式化代码">
+                            <i class="fas fa-magic"></i>
+                        </button>
+                        <button id="copyCode" class="btn-icon-small" title="复制代码">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button id="downloadCode" class="btn-icon-small" title="下载代码">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="code-preview">
+                    <textarea id="generatedCode" class="code-editor code-display" readonly></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/panel.js"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>生成图标</title>
+</head>
+<body>
+    <canvas id="canvas16" width="16" height="16" style="border:1px solid #000; margin:5px;"></canvas>
+    <canvas id="canvas48" width="48" height="48" style="border:1px solid #000; margin:5px;"></canvas>
+    <canvas id="canvas128" width="128" height="128" style="border:1px solid #000; margin:5px;"></canvas>
+    
+    <div>
+        <button onclick="downloadIcon(16)">下载 16x16</button>
+        <button onclick="downloadIcon(48)">下载 48x48</button>
+        <button onclick="downloadIcon(128)">下载 128x128</button>
+    </div>
+
+    <script>
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            
+            // 清空画布
+            ctx.clearRect(0, 0, size, size);
+            
+            // 创建渐变背景
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#007acc');
+            gradient.addColorStop(1, '#005a9e');
+            
+            // 绘制圆形背景
+            const center = size / 2;
+            const radius = size * 0.45;
+            
+            ctx.beginPath();
+            ctx.arc(center, center, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // 绘制边框
+            ctx.strokeStyle = '#003d6b';
+            ctx.lineWidth = size * 0.02;
+            ctx.stroke();
+            
+            // 绘制API网络图标
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = size * 0.02;
+            
+            // 中心节点
+            ctx.beginPath();
+            ctx.arc(center, center, size * 0.06, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // 绘制连接线和节点
+            const nodeRadius = size * 0.04;
+            const lineLength = size * 0.25;
+            
+            for (let i = 0; i < 8; i++) {
+                const angle = (i * Math.PI) / 4;
+                const x1 = center + Math.cos(angle) * (size * 0.06);
+                const y1 = center + Math.sin(angle) * (size * 0.06);
+                const x2 = center + Math.cos(angle) * lineLength;
+                const y2 = center + Math.sin(angle) * lineLength;
+                
+                // 绘制连接线
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+                
+                // 绘制端点
+                ctx.beginPath();
+                ctx.arc(x2, y2, nodeRadius, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            
+            // 绘制调试标识（小圆点）
+            if (size >= 48) {
+                const debugX = center + size * 0.25;
+                const debugY = center - size * 0.25;
+                
+                ctx.beginPath();
+                ctx.arc(debugX, debugY, size * 0.08, 0, 2 * Math.PI);
+                ctx.fillStyle = '#ff6b35';
+                ctx.fill();
+                
+                // 绘制感叹号
+                ctx.fillStyle = 'white';
+                ctx.font = `bold ${size * 0.1}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('!', debugX, debugY);
+            }
+        }
+        
+        function downloadIcon(size) {
+            const canvas = document.getElementById(`canvas${size}`);
+            const link = document.createElement('a');
+            link.download = `icon${size}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        // 初始化绘制所有图标
+        drawIcon(document.getElementById('canvas16'), 16);
+        drawIcon(document.getElementById('canvas48'), 48);
+        drawIcon(document.getElementById('canvas128'), 128);
+    </script>
+</body>
+</html>
